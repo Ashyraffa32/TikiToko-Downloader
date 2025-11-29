@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TikiToko Downloader - TikTok Video Downloader">
+    <link rel="stylesheet" href="style.css">
+    <title>Tikitoko Downloader</title>
+</head>
+<body>
+    <header>
+        <h1>TikiToko Downloader</h1>
+    </header>
+    <main class="container-body">
+    <div class="container">
+        <p class="subtitle">Download a TikTok video without a watermark, and its free.</p>
+
+        <input type="text" id="tiktokUrl" placeholder="Paste a link here...">
+        <button onclick="fetchVideo()">Download The Video!</button>
+        <p class="loading" id="loadingText">Searching the video...</p>
+
+        <div id="result">
+            <div class="author-info">
+                <img id="avatar" src="" alt="">
+                <div>
+                    <strong id="nickname">User</strong><br>
+                    <span id="desc" style="font-size: 0.8rem; color:#aaa;">Description</span>
+                </div>
+            </div>
+            
+            <div class="video-box">
+                <video id="videoPlayer" controls></video>
+            </div>
+            
+            <a id="downloadBtn" href="#" target="_blank" class="btn-download">Save to Your Device</a>
+        </div>
+    </div>
+</main>
+    <br>
+    <footer>
+    <a id="link" href="https://ashyraffa32.github.io/Personal-Website" target="_blank">Made by Ashyraffa</a>
+    </footer>
+
+    <script>
+        async function fetchVideo() {
+            const url = document.getElementById('tiktokUrl').value;
+            const resultDiv = document.getElementById('result');
+            const loading = document.getElementById('loadingText');
+
+            if (!url) {
+                alert("Link still empty.");
+                return;
+            }
+
+            // Reset
+            resultDiv.style.display = 'none';
+            loading.style.display = 'block';
+
+            try {
+                // TikWM API
+                const response = await fetch(`https://www.tikwm.com/api/?url=${url}`);
+                const data = await response.json();
+
+                if (data.code === 0) {
+                    // If success, get and fill the data
+                    const videoData = data.data;
+                    
+                    document.getElementById('avatar').src = videoData.author.avatar;
+                    document.getElementById('nickname').innerText = videoData.author.nickname;
+                    document.getElementById('desc').innerText = videoData.title.substring(0, 50) + "...";
+                    
+                    const videoPlayer = document.getElementById('videoPlayer');
+                    videoPlayer.src = videoData.play; 
+                    
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    downloadBtn.href = videoData.play;
+
+                    loading.style.display = 'none';
+                    resultDiv.style.display = 'block';
+                } else {
+                    alert("The link wasn't valid, or maybe the server was busy.");
+                    loading.style.display = 'none';
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error. Either your internet connection is a problem or there's a problem in the server.");
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
